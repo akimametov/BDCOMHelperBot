@@ -57,10 +57,11 @@ jobs:
             -o IdentitiesOnly=yes \
             "$SERVER_USER@$SERVER_HOST" \
             'cd /opt/onu-bot &&
-             docker build -f Docker/Dockerfile -t onu-bot:staging . &&
+             docker build -f Docker/Dockerfile -t bdcom-helper-bot:staging . &&
              (docker rm -f onu-bot-staging 2>/dev/null || true) &&
              docker run -d \
-               --name onu-bot-staging \
+               --name bdcom-helper-bot \
                --restart unless-stopped \
                --env-file .env \
-               onu-bot:staging'
+               -v ./IP-devices.xlsx:/usr/src/app/IP-devices.xlsx \
+               bdcom-helper-bot:staging'
