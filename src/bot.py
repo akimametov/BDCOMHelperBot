@@ -1,9 +1,9 @@
 import telebot
 import os
 from dotenv import load_dotenv
-import src.sshClient as sshClient
-import src.telnetClient as telnetClient
-import src.OLT as OLT
+import sshClient
+import telnetClient
+import OLT
 
 load_dotenv()
 
