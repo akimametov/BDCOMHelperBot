@@ -1,68 +1,29 @@
-name: Deploy to staging
-
+name: deploy-staging
 on:
   push:
     branches:
       - main
   workflow_dispatch:
-
-concurrency:
-  group: staging-deploy
-  cancel-in-progress: true
-
+    
 jobs:
-  deploy:
+  test:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - name: checkout
+        uses: actions/checkout@v3
 
-      - name: Configure SSH
-        env:
-          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-          SSH_KNOWN_HOSTS: ${{ secrets.SSH_KNOWN_HOSTS }}
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
         run: |
-          mkdir -p ~/.ssh
-          chmod 700 ~/.ssh
+          python -m pip install -r requirements.txt
+          python -m pip install pytest ruff
 
-          printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/deploy_key
-          chmod 600 ~/.ssh/deploy_key
+      - name: Check code
+        run: ruff check src
 
-          printf '%s\n' "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
-          chmod 600 ~/.ssh/known_hosts
-
-      - name: Copy project to staging
-        env:
-          SERVER_HOST: ${{ secrets.SERVER_HOST }}
-          SERVER_USER: ${{ secrets.SERVER_USER }}
-          SERVER_PORT: ${{ secrets.SERVER_PORT }}
-        run: |
-          rsync -rlz --delete \
-            --exclude='.git/' \
-            --exclude='.env' \
-            --exclude='.venv/' \
-            --exclude='__pycache__/' \
-            --exclude='IP-devices.xlsx' \
-            -e "ssh -i ~/.ssh/deploy_key -p ${SERVER_PORT} -o IdentitiesOnly=yes" \
-            ./ ${SERVER_USER}@${SERVER_HOST}:/opt/onu-bot/
-
-      - name: Build and restart container
-        env:
-          SERVER_HOST: ${{ secrets.SERVER_HOST }}
-          SERVER_USER: ${{ secrets.SERVER_USER }}
-          SERVER_PORT: ${{ secrets.SERVER_PORT }}
-        run: |
-          ssh -i ~/.ssh/deploy_key \
-            -p "$SERVER_PORT" \
-            -o IdentitiesOnly=yes \
-            "$SERVER_USER@$SERVER_HOST" \
-            'cd /opt/onu-bot &&
-             docker build -f Docker/Dockerfile -t bdcom-helper-bot:staging . &&
-             (docker rm -f onu-bot-staging 2>/dev/null || true) &&
-             docker run -d \
-               --name bdcom-helper-bot \
-               --restart unless-stopped \
-               --env-file .env \
-               --mount type=bind,source=/opt/onu-bot/IP-devices.xlsx,target=/usr/src/app/IP-devices.xlsx,readonly \
-               bdcom-helper-bot:staging'
+      - name: Run tests
+        run: pytest
