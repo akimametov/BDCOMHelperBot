@@ -1,5 +1,7 @@
 import re
+
 from netmiko import ConnectHandler
+
 
 def getOnuInformation(IPList,ONU_MAC,USER,PASSWORD):
 

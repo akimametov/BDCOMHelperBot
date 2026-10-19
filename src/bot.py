@@ -1,9 +1,10 @@
-import telebot
 import os
+
+import telebot
 from dotenv import load_dotenv
-import sshClient
-import telnetClient
+
 import OLT
+import telnetClient
 
 load_dotenv()
 
@@ -32,10 +33,10 @@ def get_text_messages(message):
         ONUInformationMessage = [f"Interface: {ONUInformation[0]}\n",
                                  f"Status: {ONUInformation[1]}\n",
                                  f"Signal: {ONUInformation[2]} dBm\n",
-                                 f"\n",
+                                 "\n",
                                  f"Eth-port: {ONUInformation[6]}\n",
                                  f"MAC-table: \n{"\n".join(ONUInformation[8:])}",
-                                 f"\n\n",
+                                 "\n\n",
                                  f"Uptime: {ONUInformation[3]}\n",
                                  f"LastDeregReason: {ONUInformation[4]}\n",
                                  f"LastDeregTime: {ONUInformation[5]}\n"]
