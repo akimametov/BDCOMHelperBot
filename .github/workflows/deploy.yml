@@ -64,16 +64,25 @@ jobs:
     Deploy_on_test_server:
         runs-on: ubuntu-latest
         steps:
-          - name: Configure SSH
-            env:
-              SSH_PRIVATE_KEY: ${{ secrets.TESTSERVER_PRIVATE_KEY }}
-              SSH_KNOWN_HOSTS: ${{ secrets.SSH_KNOWN_HOSTS }}
-            run: |
-              mkdir -p ~/.ssh
-              chmod 700 ~/.ssh
-              printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
-              chmod 600 ~/.ssh/id_ed25519
-              printf '%s\n' "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          #- name: Configure SSH
+          #  env:
+          #    SSH_PRIVATE_KEY: ${{ secrets.TESTSERVER_PRIVATE_KEY }}
+          #    SSH_KNOWN_HOSTS: ${{ secrets.SSH_KNOWN_HOSTS }}
+          #  run: |
+          #    mkdir -p ~/.ssh
+          #    chmod 700 ~/.ssh
+          #    printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
+          #    chmod 600 ~/.ssh/id_ed25519
+          #    printf '%s\n' "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
+
+          - name: Execute remote SSH commands using SSH key
+            uses: appleboy/ssh-action@v1
+            with:
+              host: ${{ secrets.TESTSERVER_HOST }}
+              username: ${{ secrets.TESTSERVER_USER }}
+              key: ${{ secrets.TESTSERVER_PRIVATE_KEY }}
+              port: ${{ secrets.TESTSERVER_SSH_PORT }}
+              script: whoami
 
           - name: Try connect
             run: ssh -p 52022 deploy@92.51.31.178
