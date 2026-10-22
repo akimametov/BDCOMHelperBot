@@ -82,6 +82,7 @@ jobs:
               key: ${{ secrets.TESTSERVER_PRIVATE_KEY }}
               port: ${{ secrets.TESTSERVER_SSH_PORT }}
               fingerprint: ${{ secrets.TESTSERVER_FINGERPRINT }}
+              debug: true
               script: whoami
 
           - name: Try connect
