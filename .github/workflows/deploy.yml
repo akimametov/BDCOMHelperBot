@@ -64,16 +64,6 @@ jobs:
     Deploy_on_test_server:
         runs-on: ubuntu-latest
         steps:
-          - name: Check fingerprint secret
-            env:
-              FP: ${{ secrets.TESTSERVER_FINGERPRINT }}
-            run: |
-              if [ -z "$FP" ]; then
-                echo "Fingerprint secret is empty"
-                exit 1
-              fi
-              echo "Fingerprint secret is set"
-
           - name: Configure SSH
             uses: appleboy/ssh-action@v1
             with:
@@ -81,8 +71,7 @@ jobs:
               username: ${{ secrets.TESTSERVER_USER }}
               key: ${{ secrets.TESTSERVER_PRIVATE_KEY }}
               port: ${{ secrets.TESTSERVER_SSH_PORT }}
-              fingerprint: ${{ secrets.TESTSERVER_FINGERPRINT }}
-              debug: true
+              #fingerprint: ${{ secrets.TESTSERVER_FINGERPRINT }}
               script: whoami
 
           - name: Try connect
