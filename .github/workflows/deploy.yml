@@ -65,14 +65,15 @@ jobs:
         runs-on: ubuntu-latest
         steps:
           - name: Configure SSH
-            uses: appleboy/ssh-action@v1
-            with:
-              host: ${{ secrets.TESTSERVER_HOST }}
-              username: ${{ secrets.TESTSERVER_USER }}
-              key: ${{ secrets.TESTSERVER_PRIVATE_KEY }}
-              port: ${{ secrets.TESTSERVER_SSH_PORT }}
-              #fingerprint: ${{ secrets.TESTSERVER_FINGERPRINT }}
-              script: whoami
+            env:
+              SSH_PRIVATE_KEY: ${{ secrets.TESTSERVER_PRIVATE_KEY }}
+              SSH_KNOWN_HOSTS: ${{ secrets.TESTSERVER_HOST }}
+            run: |
+              mkdir -p ~/.ssh
+              chmod 700 ~/.ssh
+              printf '%s\n' "$TESTSERVER_PRIVATE_KEY" > ~/.ssh/id_ed25519
+              chmod 600 ~/.ssh/id_ed25519
+              printf '%s\n' "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
 
           - name: Try connect
             run: ssh -p 52022 deploy@92.51.31.178
