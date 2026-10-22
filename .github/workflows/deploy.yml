@@ -36,7 +36,7 @@ jobs:
                 file: Docker/Dockerfile
                 push: false
                 load: true
-                cache-to: type=gha
+                cache-to: type=gha, mode=max
                 cache-from: type=gha
                 tags: bdcom-helper-bot:ci
 
@@ -53,8 +53,10 @@ jobs:
             - name: Push image to GHCR
               uses: docker/build-push-action@v7
               with:
+                context: .
+                file: Docker/Dockerfile
                 push: true
-                tags: bdcom-helper-bot:${GITHUB_SHA}
+                tags: bdcom-helper-bot:${{github.sha}}
             
 
               
