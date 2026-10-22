@@ -64,6 +64,8 @@ jobs:
     Deploy_on_test_server:
         runs-on: ubuntu-latest
         steps:
+          - run: printf '%s\n' "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
+
           - name: Configure SSH
             uses: cdqag/action-configure-ssh-host@v1
             with:
