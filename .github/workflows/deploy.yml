@@ -60,6 +60,22 @@ jobs:
                 file: Docker/Dockerfile
                 push: true
                 tags: ghcr.io/${{ github.repository_owner }}/bdcom-helper-bot:${{ github.sha }}
+
+    Deploy_on_test_server:
+        runs-on: ubuntu-latest
+        steps:
+          - name: Configure SSH
+            uses: cdqag/action-configure-ssh-host@v1
+            with:
+              name: test-server
+              host: ${{ secrets.TESTSERVER_HOST }}
+              port: ${{ secrets.TESTSERVER_SSH_PORT }}
+              user: ${{ secrets.TESTSERVER_USER }}
+              private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+          - name: Try connect
+            run: ssh -p 52022 deploy@92.51.31.178
+
             
 
               
