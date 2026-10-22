@@ -86,8 +86,10 @@ jobs:
                 set -eu
                 docker stop bdcom-helper-bot 2>/dev/null || true
                 docker rm bdcom-helper-bot 2>/dev/null || true
+                IMAGE="ghcr.io/${{ github.repository_owner }}/bdcom-helper-bot:${{ github.sha }}"
+                docker pull "$IMAGE"
                 cd /opt/BDCOMHelperBot/
-                docker run -d --restart unless-stopped --name bdcom-helper-bot --env-file .env -v ./IP-devices.xlsx:/usr/src/app/IP-devices.xlsx ghcr.io/${{ github.repository_owner }}/bdcom-helper-bot:${{ github.sha }}
+                docker run -d --restart unless-stopped --name bdcom-helper-bot --env-file .env -v ./IP-devices.xlsx:/usr/src/app/IP-devices.xlsx "$IMAGE"
 
             
 
