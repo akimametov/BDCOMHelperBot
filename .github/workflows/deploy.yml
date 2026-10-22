@@ -64,14 +64,14 @@ jobs:
     Deploy_on_test_server:
         runs-on: ubuntu-latest
         steps:
-          - name: Execute remote SSH commands using password
+          - name: Configure SSH
             uses: appleboy/ssh-action@v1
             with:
               host: ${{ secrets.TESTSERVER_HOST }}
               username: ${{ secrets.TESTSERVER_USER }}
               key: ${{ secrets.TESTSERVER_PRIVATE_KEY }}
               port: ${{ secrets.TESTSERVER_SSH_PORT }}
-              fingerprint: ${{ secrets.TESTSERVER_FINGERPTINT }}
+              fingerprint: ${{ secrets.TESTSERVER_FINGERPRINT }}
               script: whoami
 
           - name: Try connect
