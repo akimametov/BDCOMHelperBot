@@ -82,10 +82,11 @@ jobs:
               username: ${{ secrets.TESTSERVER_USER }}
               key: ${{ secrets.TESTSERVER_PRIVATE_KEY }}
               port: ${{ secrets.TESTSERVER_SSH_PORT }}
-              script: whoami
-
-          - name: Try connect
-            run: ssh -p 52022 deploy@92.51.31.178
+              script: |
+                docker stop bdcom-helper-bot
+                docker rm bdcom-helper-bot
+                cd /opt/BDCOMHelperBot/
+                docker run -d --restart unless-stopped --name bdcom-helper-bot --env-file .env -v ./IP-devices.xlsx:/usr/src/app/IP-devices.xlsx ghcr.io/${{ github.repository_owner }}/bdcom-helper-bot:${{ github.sha }}
 
             
 
