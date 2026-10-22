@@ -68,9 +68,9 @@ jobs:
             uses: cdqag/action-configure-ssh-host@v1
             with:
               name: test-server
-              host: ${{ secrets.TESTSERVER_HOST }}
-              port: ${{ secrets.TESTSERVER_SSH_PORT }}
-              user: ${{ secrets.TESTSERVER_USER }}
+              host: 92.51.31.178
+              port: 52022
+              user: deploy
               private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
           - name: Try connect
