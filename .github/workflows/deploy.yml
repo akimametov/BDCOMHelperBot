@@ -59,7 +59,7 @@ jobs:
                 context: .
                 file: Docker/Dockerfile
                 push: true
-                tags: bdcom-helper-bot:${{github.sha}}
+                tags: ghcr.io/${{ github.repository_owner }}/bdcom-helper-bot:${{ github.sha }}
             
 
               
