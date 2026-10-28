@@ -69,7 +69,7 @@ jobs:
           - name: Configure SSH
             env:
               SSH_PRIVATE_KEY: ${{ secrets.TESTSERVER_PRIVATE_KEY }}
-              SSH_KNOWN_HOSTS: ${{ secrets.SSH_KNOWN_HOSTS }}
+              SSH_KNOWN_HOSTS: ${{ secrets.TESTSERVER_SSH_KNOWN_HOST }}
             run: |
               mkdir -p ~/.ssh
               chmod 700 ~/.ssh
