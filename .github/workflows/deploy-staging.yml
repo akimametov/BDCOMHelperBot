@@ -1,0 +1,94 @@
+name: Deploy to staging
+on:
+  workflow_dispatch:
+
+jobs:
+    Test_code:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v7
+
+            - name: Install Python dependences
+              run: |
+                python -m pip install -r requirements.txt
+                python -m pip install ruff 
+
+            - name: Test syntax
+              run: python -m compileall -q src
+
+            - name: Linter
+              run: python -m ruff check src
+
+    Build_and_push_image:
+        needs: Test_code
+        runs-on: ubuntu-latest
+        permissions:
+          contents: read
+          packages: write
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v7
+
+            - name: Setup Docker Buildx
+              uses: docker/setup-buildx-action@v4
+
+            - name: Build image
+              uses: docker/build-push-action@v7
+              with:
+                context: .
+                file: Docker/Dockerfile
+                push: false
+                load: true
+                cache-to: type=gha, mode=max
+                cache-from: type=gha
+                tags: bdcom-helper-bot:ci
+
+            - name: Test image
+              run: docker run --rm --entrypoint python bdcom-helper-bot:ci -m compileall -q src
+
+            - name: Login to GitHub Container Registry
+              uses: docker/login-action@v4
+              with:
+                registry: ghcr.io
+                username: ${{ github.actor }}
+                password: ${{secrets.GITHUB_TOKEN}}
+
+            - name: Push image to GHCR
+              uses: docker/build-push-action@v7
+              with:
+                context: .
+                file: Docker/Dockerfile
+                push: true
+                tags: ghcr.io/${{ github.repository_owner }}/bdcom-helper-bot:${{ github.sha }}
+
+    Deploy_to_staging:
+        needs: Build_and_push_image
+        runs-on: ubuntu-latest
+        steps:
+          - name: Configure SSH
+            env:
+              SSH_PRIVATE_KEY: ${{ secrets.TESTSERVER_PRIVATE_KEY }}
+              SSH_KNOWN_HOSTS: ${{ secrets.SSH_KNOWN_HOSTS }}
+            run: |
+              mkdir -p ~/.ssh
+              chmod 700 ~/.ssh
+              printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
+              chmod 600 ~/.ssh/id_ed25519
+              printf '%s\n' "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
+
+          - name: Deploy to test server
+            env:
+              SSH_PORT: ${{secrets.TESTSERVER_SSH_PORT}}
+              USER: ${{secrets.TESTSERVER_USER}}
+              HOST: ${{secrets.TESTSERVER_HOST}}
+            run: |
+              ssh -p "$SSH_PORT" "$USER"@"$HOST" <<'EOF'
+              set -eu
+              docker stop bdcom-helper-bot 2>/dev/null || true
+              docker rm bdcom-helper-bot 2>/dev/null || true
+              IMAGE="ghcr.io/${{ github.repository_owner }}/bdcom-helper-bot:${{ github.sha }}"
+              docker pull "$IMAGE"
+              cd /opt/BDCOMHelperBot/
+              docker run -d --restart unless-stopped --name bdcom-helper-bot --env-file .env -v ./IP-devices.xlsx:/usr/src/app/IP-devices.xlsx "$IMAGE"
+              EOF

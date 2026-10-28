@@ -1,0 +1,34 @@
+name: Deploy to prod
+on:
+  workflow_dispatch:
+
+jobs:
+    Deploy_to_prod:
+        runs-on: ubuntu-latest
+        steps:
+          - name: Configure SSH
+            env:
+              SSH_PRIVATE_KEY: ${{ secrets.PROD_PRIVATE_KEY }}
+              SSH_KNOWN_HOSTS: ${{ secrets.PROD_KNOWN_HOSTS }}
+            run: |
+              mkdir -p ~/.ssh
+              chmod 700 ~/.ssh
+              printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
+              chmod 600 ~/.ssh/id_ed25519
+              printf '%s\n' "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
+
+          - name: Deploy to test server
+            env:
+              SSH_PORT: ${{ secrets.PROD_SSH_PORT }}
+              USER: ${{ secrets.PROD_USER }}
+              HOST: ${{ secrets.PROD_HOST }}
+            run: |
+              ssh -p "$SSH_PORT" "$USER"@"$HOST" <<'EOF'
+              set -eu
+              docker stop bdcom-helper-bot 2>/dev/null || true
+              docker rm bdcom-helper-bot 2>/dev/null || true
+              IMAGE="ghcr.io/${{ github.repository_owner }}/bdcom-helper-bot:${{ github.sha }}"
+              docker pull "$IMAGE"
+              cd /opt/BDCOMHelperBot/
+              docker run -d --restart unless-stopped --name bdcom-helper-bot --env-file .env -v ./IP-devices.xlsx:/usr/src/app/IP-devices.xlsx "$IMAGE"
+              EOF
