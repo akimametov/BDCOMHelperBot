@@ -1,4 +1,5 @@
 import openpyxl
+
 wb = openpyxl.load_workbook('IP-devices.xlsx')
 sheet = wb['IP']
 
