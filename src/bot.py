@@ -23,10 +23,14 @@ def get_text_messages(message):
     if not oltListIP:
         bot.send_message(message.from_user.id,"Населённый пункт не найден")
         return
-    
+ 
     ONUInformation = telnetClient.getOnuInformation(oltListIP,str(mac),oltUsername,oltPassword)
 
-    if ONUInformation == "ONU не найден":                                                       #Если функция getOnuInformation возвращает строку и в ней содержится "ONU не найден"
+
+    if "Хост не доступен" in ONUInformation:                                                    #Если функция getOnuInformation возвращает строку, которая начинается с текста "Хост не доступен"
+        ONUInformationMessage = ONUInformation
+
+    elif ONUInformation == "ONU не найден":                                                     #Если функция getOnuInformation возвращает строку и в ней содержится "ONU не найден"
         ONUInformationMessage = ["ONU не найден"]
 
     elif ONUInformation[1] == "auto-configured" or ONUInformation[1] == "figured":              #Если ONU онлайн, выводим полную информацию. "figured" - для поддержки старых P3310 (auto-con\nfigured)

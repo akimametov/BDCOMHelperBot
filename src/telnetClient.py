@@ -1,7 +1,16 @@
 import re
+import socket
 
 from netmiko import ConnectHandler
 
+def checkHostAvailability(host, port):
+  with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+    s.settimeout(3)
+    try:
+      s.connect((host, port))
+      return True
+    except (socket.timeout, ConnectionRefusedError, OSError):
+      return False
 
 def getOnuInformation(IPList,ONU_MAC,USER,PASSWORD):
 
@@ -13,6 +22,9 @@ def getOnuInformation(IPList,ONU_MAC,USER,PASSWORD):
             'password': PASSWORD,
             'port': 23,
         }
+
+        if not checkHostAvailability(DEVICE_PARAMS['host'],DEVICE_PARAMS['port']):
+            return "Хост не доступен " + str(DEVICE_PARAMS['host'])
 
         with ConnectHandler(**DEVICE_PARAMS) as telnet:
             telnet.enable()
@@ -77,3 +89,5 @@ def getOnuInformation(IPList,ONU_MAC,USER,PASSWORD):
                 
     if ONUInformation == "":
         return ('ONU не найден')
+
+#print(getOnuInformation(["192.168.70.140","192.168.70.141","192.168.70.142"],"e0e8.e6f2.2cb0","admin","sky$router"))
