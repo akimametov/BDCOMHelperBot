@@ -3,13 +3,14 @@ import socket
 
 from netmiko import ConnectHandler
 
+
 def checkHostAvailability(host, port):
   with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     s.settimeout(3)
     try:
       s.connect((host, port))
       return True
-    except (socket.timeout, ConnectionRefusedError, OSError):
+    except (TimeoutError, ConnectionRefusedError, OSError):
       return False
 
 def getOnuInformation(IPList,ONU_MAC,USER,PASSWORD):
@@ -89,5 +90,3 @@ def getOnuInformation(IPList,ONU_MAC,USER,PASSWORD):
                 
     if ONUInformation == "":
         return ('ONU не найден')
-
-#print(getOnuInformation(["192.168.70.140","192.168.70.141","192.168.70.142"],"e0e8.e6f2.2cb0","admin","sky$router"))
