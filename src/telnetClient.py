@@ -37,14 +37,14 @@ def getOnuInformation(IPList,ONU_MAC,USER,PASSWORD):
                 ONUInterfaceMatch=ONUInterfaceRegex.search(ONUInformation)
                 ONUInterface=ONUInterfaceMatch.group()
 
-                ONUStatus=ONUInformation.split()[-2]
+                ONUStatus=ONUInformation.replace("\n","").split()[-2]
 
                 #Description
                 ONUDescriptionRegex=re.compile(r'\w{4}.\w{4}.\w{4}\s(\S*)')
                 ONUDescriptionMatch=ONUDescriptionRegex.search(ONUInformation)
                 ONUDescription=ONUDescriptionMatch.group(1)
 
-                if ONUStatus=="auto-configured" or ONUStatus=="figured":    #"figured" - для поддержки старых P3310 (статус выводится так - "auto-con\nfigured")
+                if ONUStatus=="auto-configured":
                     ONUOpticalSignal=telnet.send_command('sh epon interface '+ONUInterface+' onu ctc optical-transceive')
                     ONUEthPortState=telnet.send_command('sh epon interface '+ONUInterface+' onu port 1 state', read_timeout=30, delay_factor=30)
                     ONUMacAddress=telnet.send_command('sh mac address-table interface '+ONUInterface)
