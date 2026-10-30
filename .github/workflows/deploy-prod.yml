@@ -3,6 +3,11 @@ on:
   pull_request:
     branches:
       - main
+    paths:
+      - 'src/**'
+      - 'Docker/**'
+      - 'requirements.txt'
+
     types: [opened, synchronize, reopened]
   workflow_dispatch:
 
