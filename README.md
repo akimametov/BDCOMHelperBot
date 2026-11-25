@@ -12,8 +12,9 @@
 - Причина последнего отключения
 - Время последнего отключения
 
-![Скриншот Telegram-бота](assets/screenshot_telegram-bot_onu_online.png)
+![Скриншот Telegram-бота - ONU online](assets/screenshot_telegram-bot_onu_online.png)
 
+![Скриншот Telegram-бота - ONU offline](assets/screenshot_telegram-bot_onu_offline.png)
 
 # Установка и использование
 
